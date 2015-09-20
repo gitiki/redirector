@@ -2,11 +2,17 @@
 
 namespace Gitiki\Redirector;
 
-use Silex\Application,
-    Silex\ServiceProviderInterface;
+use Gitiki\ExtensionInterface;
 
-class RedirectorServiceProvider implements ServiceProviderInterface
+use Silex\Application;
+
+class RedirectorExtension implements ExtensionInterface
 {
+    public static function getConfigurationKey()
+    {
+        return 'redirector';
+    }
+
     public function register(Application $app)
     {
         $app['dispatcher'] = $app->share($app->extend('dispatcher', function ($dispatcher, $app) {

@@ -2,31 +2,25 @@
 
 namespace Gitiki\Redirector;
 
-use Gitiki\ExtensionInterface;
-
-use Silex\Application;
+use Gitiki\ExtensionInterface,
+    Gitiki\Gitiki;
 
 class RedirectorExtension implements ExtensionInterface
 {
-    public static function getConfigurationKey()
+    public function register(Gitiki $gitiki, array $config)
     {
-        return 'redirector';
-    }
-
-    public function register(Application $app)
-    {
-        $app['dispatcher'] = $app->share($app->extend('dispatcher', function ($dispatcher, $app) {
-            $dispatcher->addSubscriber(new Event\Listener\RedirectListener($app['path_resolver']));
+        $gitiki['dispatcher'] = $gitiki->share($gitiki->extend('dispatcher', function ($dispatcher, $gitiki) {
+            $dispatcher->addSubscriber(new Event\Listener\RedirectListener($gitiki['path_resolver']));
 
             return $dispatcher;
         }));
     }
 
-    public function boot(Application $app)
+    public function boot(Gitiki $gitiki)
     {
-        $app->error(function ($e, $code) use ($app) {
+        $gitiki->error(function ($e, $code) use ($gitiki) {
             if ($e instanceof Exception\PageRedirectedException) {
-                return $app->redirect($app->path('page', ['path' => $e->getTarget()]), 301);
+                return $gitiki->redirect($gitiki->path('page', ['path' => $e->getTarget()]), 301);
             }
         });
     }
